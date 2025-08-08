@@ -1,0 +1,28 @@
+body {
+  font-family: Arial;
+  text-align: center;
+  margin: 20px;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: #28a745;
+  color: white;
+  border: none;
+}
+button:hover {
+  background: #218838;
+}
+#reader {
+  margin: 20px auto;
+  width: 300px;
+  height: 300px;
+}
+#resultado {
+  margin-top: 15px;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 8px;
+}
