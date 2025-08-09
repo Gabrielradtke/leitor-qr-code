@@ -1,15 +1,29 @@
-export default function handler(req, res) {
-  const codigosAutorizados = ["ABC123", "XYZ789", "QRCODE2025"];
+import { MongoClient } from "mongodb";
 
-  const codigo = req.query.codigo;
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
 
-  if (!codigo) {
+export default async function handler(req, res) {
+  if (!req.query.codigo) {
     return res.status(400).json({ error: "Código não informado" });
   }
 
-  if (codigosAutorizados.includes(codigo)) {
-    return res.status(200).json({ autorizado: true });
-  } else {
-    return res.status(200).json({ autorizado: false });
+  try {
+    await client.connect();
+    const database = client.db("meubanco");
+    const collection = database.collection("codigos");
+
+    const codigo = req.query.codigo;
+    const doc = await collection.findOne({ codigo });
+
+    if (doc) {
+      return res.status(200).json({ autorizado: true });
+    } else {
+      return res.status(200).json({ autorizado: false });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: "Erro no servidor: " + e.message });
+  } finally {
+    await client.close();
   }
 }
