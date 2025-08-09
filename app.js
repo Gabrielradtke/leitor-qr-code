@@ -10,54 +10,64 @@ btn.addEventListener("click", () => {
 
   html5QrCode = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(cameras => {
-    if (cameras && cameras.length) {
-      // Tenta encontrar a câmera traseira pelo nome (label)
-      const cameraBack = cameras.find(camera =>
-        /back|rear|traseira|environment/i.test(camera.label)
-      );
+  Html5Qrcode.getCameras()
+    .then((cameras) => {
+      if (cameras && cameras.length) {
+        // Tenta encontrar a câmera traseira pelo nome (label)
+        const cameraBack = cameras.find((camera) =>
+          /back|rear|traseira|environment/i.test(camera.label)
+        );
 
-      const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
+        const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
 
-      html5QrCode.start(
-        cameraId,
-        { fps: 10, qrbox: 250 },
-        qrCodeMessage => {
-          html5QrCode.stop().then(() => {
-            reader.style.display = "none";
-            verificarCodigo(qrCodeMessage);
-            btn.disabled = false;
-          }).catch(err => {
-            resultado.innerHTML = "Erro ao parar a câmera: " + err;
+        html5QrCode
+          .start(
+            cameraId,
+            { fps: 10, qrbox: 250 },
+            (qrCodeMessage) => {
+              html5QrCode
+                .stop()
+                .then(() => {
+                  reader.style.display = "none";
+                  verificarCodigo(qrCodeMessage);
+                  btn.disabled = false;
+                })
+                .catch((err) => {
+                  resultado.innerHTML = "Erro ao parar a câmera: " + err;
+                  btn.disabled = false;
+                });
+            },
+            (errorMessage) => {
+              // Você pode mostrar erros de scan aqui se quiser
+            }
+          )
+          .catch((err) => {
+            resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
             btn.disabled = false;
           });
-        },
-        errorMessage => {
-          // Você pode mostrar erros de scan aqui se quiser
-        }
-      ).catch(err => {
-        resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
+      } else {
+        resultado.innerHTML = "Nenhuma câmera encontrada.";
         btn.disabled = false;
-      });
-    } else {
-      resultado.innerHTML = "Nenhuma câmera encontrada.";
+      }
+    })
+    .catch((err) => {
+      resultado.innerHTML = "Erro ao buscar câmeras: " + err;
       btn.disabled = false;
-    }
-  }).catch(err => {
-    resultado.innerHTML = "Erro ao buscar câmeras: " + err;
-    btn.disabled = false;
-  });
+    });
 });
 
 function verificarCodigo(codigo) {
   resultado.innerHTML = `Verificando código: <b>${codigo}</b> ...`;
 
-  fetch(`/api/verificar?codigo=${encodeURIComponent(codigo)}`)
-    .then(response => {
+  fetch(
+    "https://leitor-qr-code-nine.vercel.app/api/verificar?codigo=" +
+      encodeURIComponent(codigo)
+  )
+    .then((response) => {
       if (!response.ok) throw new Error("Resposta do servidor não OK");
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       if (data.autorizado) {
         resultado.style.backgroundColor = "#c8e6c9";
         resultado.innerHTML = `✅ Código <b>${codigo}</b> autorizado!`;
@@ -66,7 +76,7 @@ function verificarCodigo(codigo) {
         resultado.innerHTML = `❌ Código <b>${codigo}</b> não autorizado.`;
       }
     })
-    .catch(err => {
+    .catch((err) => {
       resultado.style.backgroundColor = "#ffeb3b";
       resultado.innerHTML = "Erro ao verificar código: " + err.message;
     });
