@@ -1,7 +1,9 @@
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
+
+let cachedClient = null;
+let cachedDb = null;
 
 export default async function handler(req, res) {
   if (!req.query.codigo) {
@@ -9,9 +11,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    await client.connect();
-    const database = client.db("meubanco");
-    const collection = database.collection("codigos");
+    if (!cachedClient) {
+      cachedClient = new MongoClient(uri);
+      await cachedClient.connect();
+      cachedDb = cachedClient.db("meubanco");
+    }
+
+    const collection = cachedDb.collection("codigos");
 
     const codigo = req.query.codigo;
     const doc = await collection.findOne({ codigo });
@@ -23,7 +29,5 @@ export default async function handler(req, res) {
     }
   } catch (e) {
     return res.status(500).json({ error: "Erro no servidor: " + e.message });
-  } finally {
-    await client.close();
   }
 }
