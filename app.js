@@ -12,7 +12,13 @@ btn.addEventListener("click", () => {
 
   Html5Qrcode.getCameras().then(cameras => {
     if (cameras && cameras.length) {
-      const cameraId = cameras[0].id;
+      // Tenta encontrar a câmera traseira pelo nome (label)
+      const cameraBack = cameras.find(camera =>
+        /back|rear|traseira|environment/i.test(camera.label)
+      );
+
+      const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
+
       html5QrCode.start(
         cameraId,
         { fps: 10, qrbox: 250 },
@@ -26,7 +32,9 @@ btn.addEventListener("click", () => {
             btn.disabled = false;
           });
         },
-        errorMessage => {}
+        errorMessage => {
+          // Você pode mostrar erros de scan aqui se quiser
+        }
       ).catch(err => {
         resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
         btn.disabled = false;
