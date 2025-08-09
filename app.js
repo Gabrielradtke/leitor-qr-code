@@ -59,15 +59,12 @@ btn.addEventListener("click", () => {
 function verificarCodigo(codigo) {
   resultado.innerHTML = `Verificando código: <b>${codigo}</b> ...`;
 
-  fetch(
-    "https://leitor-qr-code-nine.vercel.app/api/verificar?codigo=" +
-      encodeURIComponent(codigo)
-  )
-    .then((response) => {
+  fetch(`https://leitor-qr-code-nine.vercel.app/api/verificar?codigo=${encodeURIComponent(codigo)}`)
+    .then(response => {
       if (!response.ok) throw new Error("Resposta do servidor não OK");
       return response.json();
     })
-    .then((data) => {
+    .then(data => {
       if (data.autorizado) {
         resultado.style.backgroundColor = "#c8e6c9";
         resultado.innerHTML = `✅ Código <b>${codigo}</b> autorizado!`;
@@ -76,8 +73,10 @@ function verificarCodigo(codigo) {
         resultado.innerHTML = `❌ Código <b>${codigo}</b> não autorizado.`;
       }
     })
-    .catch((err) => {
+    .catch(err => {
       resultado.style.backgroundColor = "#ffeb3b";
       resultado.innerHTML = "Erro ao verificar código: " + err.message;
     });
+}
+
 }
