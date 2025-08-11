@@ -172,8 +172,15 @@
         resultado.className = 'loading';
         resultado.innerHTML = `Verificando código: <b>${codigo}</b> ...`;
 
-        // Verifica se o código está na lista local após remover espaços em branco
-        if (codigosValidos.includes(codigo.trim())) {
+        // Prepara o código escaneado para a verificação, removendo espaços
+        // e convertendo para minúsculas para garantir que a comparação seja case-insensitive.
+        const codigoLimpo = codigo.trim().toLowerCase();
+        
+        // Converte a lista de códigos válidos para minúsculas para a comparação.
+        const codigosValidosLowerCase = codigosValidos.map(c => c.toLowerCase());
+
+        // Verifica se o código limpo está na lista de códigos válidos
+        if (codigosValidosLowerCase.includes(codigoLimpo)) {
           resultado.className = 'autorizado';
           resultado.innerHTML = `✅ Código <b>${codigo.trim()}</b> autorizado!`;
         } else {
