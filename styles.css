@@ -1,48 +1,82 @@
-body {
-  font-family: Arial, sans-serif;
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+  height: 100%;
+  background: #121212;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  background: #1e1e1e;
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+  max-width: 400px;
+  width: 100%;
   text-align: center;
-  margin: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 6px;
-  background: #28a745;
-  color: white;
+h1 {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+}
+
+.subtitle {
+  font-weight: 400;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  color: #bbb;
+}
+
+.btn-primary {
+  background: #4caf50;
   border: none;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #218838;
-}
-
-#reader {
-  margin: 20px auto;
-  width: 300px;
-  height: 300px;
-}
-
-#resultado {
-  margin-top: 15px;
-  font-weight: bold;
-  padding: 10px;
   border-radius: 8px;
-  margin: 2px auto;
-  max-width: 550px;
+  padding: 15px 0;
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  user-select: none;
 }
 
-.principal {
-  border: 2px solid #218838;
-  width: 550px;
-  height: 550px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.btn-primary:hover {
+  background: #43a047;
+}
+
+.scanner {
+  margin: 20px auto;
+  width: 320px;
+  height: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #4caf50;
+}
+
+.resultado {
+  margin-top: 20px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  min-height: 2.5rem;
+  color: #4caf50;
+  user-select: text;
+  word-wrap: break-word;
+}
+
+/* Mensagem de erro */
+.resultado.error {
+  color: #e53935;
 }
