@@ -64,7 +64,7 @@
         border-radius: 8px;
         width: 100%;
         word-break: break-all;
-        min-height: 50px; /* Garante que a div sempre tenha uma altura mínima */
+        min-height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -93,22 +93,21 @@
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-      // --- Lógica JavaScript ---
       const btn = document.getElementById("btnIniciar");
       const reader = document.getElementById("reader");
       const resultado = document.getElementById("resultado");
       let html5QrCode;
-
-      // Lista de códigos válidos embutida no JavaScript
-      // VOCÊ PODE ADICIONAR SEUS CÓDIGOS AQUI.
-      const codigosValidos = [
-        "00910023",
-        "codigo-secreto-123",
-        "evento-2025-abril",
-        "promocao-de-verao-xpto"
-      ];
+      let cameraAtiva = false;
 
       btn.addEventListener("click", () => {
+        if (!cameraAtiva) {
+          iniciarCamera();
+        } else {
+          pararCamera();
+        }
+      });
+
+      function iniciarCamera() {
         btn.disabled = true;
         resultado.className = 'loading';
         resultado.innerHTML = "Abrindo câmera e escaneando QR Code...";
@@ -116,77 +115,64 @@
 
         html5QrCode = new Html5Qrcode("reader");
 
-        // Busca todas as câmeras disponíveis
         Html5Qrcode.getCameras()
           .then(cameras => {
             if (cameras && cameras.length) {
-              // Procura pela câmera traseira
               const cameraBack = cameras.find(camera =>
                 /back|rear|traseira|environment/i.test(camera.label)
               );
-
-              // Usa a câmera traseira se encontrada, caso contrário, usa a primeira
               const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
 
-              // Inicia o leitor de QR Code
               html5QrCode.start(
                 cameraId,
                 { fps: 10, qrbox: 250 },
                 qrCodeMessage => {
-                  // QR Code escaneado com sucesso
-                  html5QrCode.stop().then(() => {
-                    reader.style.display = "none";
-                    verificarCodigo(qrCodeMessage);
-                    btn.disabled = false;
-                  }).catch(err => {
+                  // Quando ler QR code, verifica se é o código exato "00910023"
+                  if (qrCodeMessage.trim() === "00910023") {
+                    resultado.className = 'autorizado';
+                    resultado.innerHTML = `✅ Código <b>${qrCodeMessage}</b> autorizado!`;
+                  } else {
                     resultado.className = 'nao-autorizado';
-                    resultado.innerHTML = "Erro ao parar a câmera: " + err;
-                    btn.disabled = false;
-                  });
+                    resultado.innerHTML = `❌ Código <b>${qrCodeMessage}</b> não autorizado.`;
+                  }
+                  // Para a câmera após ler o código
+                  pararCamera();
                 },
                 errorMessage => {
-                  // Ignora erros menores
+                  // Aqui pode ignorar erros menores de leitura
                 }
-              ).catch(err => {
-                // Erro ao iniciar a câmera
+              ).then(() => {
+                cameraAtiva = true;
+                btn.disabled = false;
+                btn.textContent = "Parar Câmera";
+              }).catch(err => {
                 resultado.className = 'nao-autorizado';
                 resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
                 btn.disabled = false;
               });
             } else {
-              // Nenhuma câmera encontrada
               resultado.className = 'nao-autorizado';
               resultado.innerHTML = "Nenhuma câmera encontrada.";
               btn.disabled = false;
             }
           })
           .catch(err => {
-            // Erro ao buscar câmeras
             resultado.className = 'nao-autorizado';
             resultado.innerHTML = "Erro ao buscar câmeras: " + err;
             btn.disabled = false;
           });
-      });
+      }
 
-      function verificarCodigo(codigo) {
-        resultado.className = 'loading';
-        resultado.innerHTML = `Verificando código: <b>${codigo}</b> ...`;
-
-        // Prepara o código escaneado para a verificação, removendo espaços
-        // e convertendo para minúsculas para garantir que a comparação seja case-insensitive.
-        const codigoLimpo = codigo.trim().toLowerCase();
-        
-        // Converte a lista de códigos válidos para minúsculas para a comparação.
-        const codigosValidosLowerCase = codigosValidos.map(c => c.toLowerCase());
-
-        // Verifica se o código limpo está na lista de códigos válidos
-        if (codigosValidosLowerCase.includes(codigoLimpo)) {
-          resultado.className = 'autorizado';
-          resultado.innerHTML = `✅ Código <b>${codigo.trim()}</b> autorizado!`;
-        } else {
+      function pararCamera() {
+        if (!cameraAtiva) return;
+        html5QrCode.stop().then(() => {
+          reader.style.display = "none";
+          cameraAtiva = false;
+          btn.textContent = "Abrir Câmera";
+        }).catch(err => {
           resultado.className = 'nao-autorizado';
-          resultado.innerHTML = `❌ Código <b>${codigo.trim()}</b> não autorizado.`;
-        }
+          resultado.innerHTML = "Erro ao parar a câmera: " + err;
+        });
       }
     </script>
   </body>
