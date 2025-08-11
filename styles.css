@@ -2,6 +2,8 @@ body {
   font-family: Arial;
   text-align: center;
   margin: 20px;
+  display: flex;
+  justify-content: center;
 }
 button {
   padding: 10px 20px;
@@ -25,4 +27,13 @@ button:hover {
   font-weight: bold;
   padding: 10px;
   border-radius: 8px;
+  margin: 2px;
+}
+
+.principal {
+  border: 2px solid #218838;
+  width: 550px;
+  height: 550px;
+  align-items: center;
+  
 }

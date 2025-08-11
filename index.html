@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Leitor QR Code</title>
-<link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>Leitor de QR Code</h1>
-  <button id="btnIniciar">Abrir Câmera</button>
-  <div id="reader" style="display:none;"></div>
-  <div id="resultado"></div>
-
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leitor QR Code</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="principal">
+      <h1>Leitor de QR Code</h1>
+      <button id="btnIniciar">Abrir Câmera</button>
+      <div id="reader" style="display: none"></div>
+      <div id="resultado"></div>
+      <script src="https://unpkg.com/html5-qrcode"></script>
+      <script src="app.js"></script>
+    </div>
+  </body>
 </html>
