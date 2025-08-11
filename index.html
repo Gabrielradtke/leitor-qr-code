@@ -50,7 +50,7 @@
         background: #218838;
       }
       #reader {
-        margin: 20px auto;
+        margin: 21px auto;
         width: 100%;
         max-width: 300px;
         height: 300px;
@@ -128,7 +128,7 @@
                 { fps: 10, qrbox: 250 },
                 qrCodeMessage => {
                   // Quando ler QR code, verifica se é o código exato "00910023"
-                  if (qrCodeMessage.trim() === "00910023") {
+                  if (qrCodeMessage.trim() === "0910023") {
                     resultado.className = 'autorizado';
                     resultado.innerHTML = `✅ Código <b>${qrCodeMessage}</b> autorizado!`;
                   } else {
