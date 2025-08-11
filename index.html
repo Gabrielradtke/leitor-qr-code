@@ -1,179 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leitor de QR Code</title>
-    <style>
-      /* --- Estilos CSS --- */
-      body {
-        font-family: 'Inter', sans-serif;
-        text-align: center;
-        margin: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: #f0f2f5;
-        color: #333;
-      }
-      .principal {
-        border: 2px solid #28a745;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 550px;
-        padding: 30px;
-        background-color: #fff;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      h1 {
-        color: #28a745;
-        margin-bottom: 20px;
-        font-size: 2em;
-      }
-      button {
-        padding: 12px 24px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 8px;
-        background: #28a745;
-        color: white;
-        border: none;
-        transition: background-color 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        font-weight: bold;
-      }
-      button:hover {
-        background: #218838;
-      }
-      #reader {
-        margin: 21px auto;
-        width: 100%;
-        max-width: 300px;
-        height: 300px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-      }
-      #resultado {
-        margin-top: 25px;
-        font-weight: bold;
-        padding: 15px;
-        border-radius: 8px;
-        width: 100%;
-        word-break: break-all;
-        min-height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .autorizado {
-        background-color: #c8e6c9;
-        color: #155724;
-      }
-      .nao-autorizado {
-        background-color: #ffcdd2;
-        color: #721c24;
-      }
-      .loading {
-        background-color: #fff3cd;
-        color: #856404;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="principal">
-      <h1>Leitor de QR Code</h1>
-      <button id="btnIniciar">Abrir Câmera</button>
-      <div id="reader" style="display: none"></div>
-      <div id="resultado"></div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seu Site com Supabase</title>
+  
+  <!-- Link para seu CSS -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Conteúdo principal do seu site aqui -->
+    <h1>Bem-vindo ao seu site</h1>
+    
+    <form id="formCodigo">
+      <label for="codigo">Digite o código:</label>
+      <input type="text" id="codigo" name="codigo" required />
+      <button type="submit">Enviar</button>
+    </form>
+    
+    <div id="resultado"></div>
+  </div>
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script>
-      const btn = document.getElementById("btnIniciar");
-      const reader = document.getElementById("reader");
-      const resultado = document.getElementById("resultado");
-      let html5QrCode;
-      let cameraAtiva = false;
-
-      btn.addEventListener("click", () => {
-        if (!cameraAtiva) {
-          iniciarCamera();
-        } else {
-          pararCamera();
-        }
-      });
-
-      function iniciarCamera() {
-        btn.disabled = true;
-        resultado.className = 'loading';
-        resultado.innerHTML = "Abrindo câmera e escaneando QR Code...";
-        reader.style.display = "block";
-
-        html5QrCode = new Html5Qrcode("reader");
-
-        Html5Qrcode.getCameras()
-          .then(cameras => {
-            if (cameras && cameras.length) {
-              const cameraBack = cameras.find(camera =>
-                /back|rear|traseira|environment/i.test(camera.label)
-              );
-              const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
-
-              html5QrCode.start(
-                cameraId,
-                { fps: 10, qrbox: 250 },
-                qrCodeMessage => {
-                  // Quando ler QR code, verifica se é o código exato "00910023"
-                  if (qrCodeMessage.trim() === "0910023") {
-                    resultado.className = 'autorizado';
-                    resultado.innerHTML = `✅ Código <b>${qrCodeMessage}</b> autorizado!`;
-                  } else {
-                    resultado.className = 'nao-autorizado';
-                    resultado.innerHTML = `❌ Código <b>${qrCodeMessage}</b> não autorizado.`;
-                  }
-                  // Para a câmera após ler o código
-                  pararCamera();
-                },
-                errorMessage => {
-                  // Aqui pode ignorar erros menores de leitura
-                }
-              ).then(() => {
-                cameraAtiva = true;
-                btn.disabled = false;
-                btn.textContent = "Parar Câmera";
-              }).catch(err => {
-                resultado.className = 'nao-autorizado';
-                resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
-                btn.disabled = false;
-              });
-            } else {
-              resultado.className = 'nao-autorizado';
-              resultado.innerHTML = "Nenhuma câmera encontrada.";
-              btn.disabled = false;
-            }
-          })
-          .catch(err => {
-            resultado.className = 'nao-autorizado';
-            resultado.innerHTML = "Erro ao buscar câmeras: " + err;
-            btn.disabled = false;
-          });
-      }
-
-      function pararCamera() {
-        if (!cameraAtiva) return;
-        html5QrCode.stop().then(() => {
-          reader.style.display = "none";
-          cameraAtiva = false;
-          btn.textContent = "Abrir Câmera";
-        }).catch(err => {
-          resultado.className = 'nao-autorizado';
-          resultado.innerHTML = "Erro ao parar a câmera: " + err;
-        });
-      }
-    </script>
-  </body>
+  <!-- Link para seu JS -->
+  <script src="app.js"></script>
+</body>
 </html>
