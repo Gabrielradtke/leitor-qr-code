@@ -2,9 +2,86 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Leitor QR Code</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leitor de QR Code</title>
+    <style>
+      /* --- Estilos CSS --- */
+      body {
+        font-family: 'Inter', sans-serif;
+        text-align: center;
+        margin: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f2f5;
+        color: #333;
+      }
+      .principal {
+        border: 2px solid #28a745;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 550px;
+        padding: 30px;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h1 {
+        color: #28a745;
+        margin-bottom: 20px;
+        font-size: 2em;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 8px;
+        background: #28a745;
+        color: white;
+        border: none;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+      }
+      button:hover {
+        background: #218838;
+      }
+      #reader {
+        margin: 20px auto;
+        width: 100%;
+        max-width: 300px;
+        height: 300px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      }
+      #resultado {
+        margin-top: 25px;
+        font-weight: bold;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        word-break: break-all;
+        min-height: 50px; /* Garante que a div sempre tenha uma altura mínima */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .autorizado {
+        background-color: #c8e6c9;
+        color: #155724;
+      }
+      .nao-autorizado {
+        background-color: #ffcdd2;
+        color: #721c24;
+      }
+      .loading {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+    </style>
   </head>
   <body>
     <div class="principal">
@@ -12,8 +89,97 @@
       <button id="btnIniciar">Abrir Câmera</button>
       <div id="reader" style="display: none"></div>
       <div id="resultado"></div>
-      <script src="https://unpkg.com/html5-qrcode"></script>
-      <script src="app.js"></script>
     </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+      // --- Lógica JavaScript ---
+      const btn = document.getElementById("btnIniciar");
+      const reader = document.getElementById("reader");
+      const resultado = document.getElementById("resultado");
+      let html5QrCode;
+
+      // Lista de códigos válidos embutida no JavaScript
+      // VOCÊ PODE ADICIONAR SEUS CÓDIGOS AQUI.
+      const codigosValidos = [
+        "00910023",
+        "evento-2025-abril",
+        "promocao-de-verao-xpto"
+      ];
+
+      btn.addEventListener("click", () => {
+        btn.disabled = true;
+        resultado.className = 'loading';
+        resultado.innerHTML = "Abrindo câmera e escaneando QR Code...";
+        reader.style.display = "block";
+
+        html5QrCode = new Html5Qrcode("reader");
+
+        // Busca todas as câmeras disponíveis
+        Html5Qrcode.getCameras()
+          .then(cameras => {
+            if (cameras && cameras.length) {
+              // Procura pela câmera traseira
+              const cameraBack = cameras.find(camera =>
+                /back|rear|traseira|environment/i.test(camera.label)
+              );
+
+              // Usa a câmera traseira se encontrada, caso contrário, usa a primeira
+              const cameraId = cameraBack ? cameraBack.id : cameras[0].id;
+
+              // Inicia o leitor de QR Code
+              html5QrCode.start(
+                cameraId,
+                { fps: 10, qrbox: 250 },
+                qrCodeMessage => {
+                  // QR Code escaneado com sucesso
+                  html5QrCode.stop().then(() => {
+                    reader.style.display = "none";
+                    verificarCodigo(qrCodeMessage);
+                    btn.disabled = false;
+                  }).catch(err => {
+                    resultado.className = 'nao-autorizado';
+                    resultado.innerHTML = "Erro ao parar a câmera: " + err;
+                    btn.disabled = false;
+                  });
+                },
+                errorMessage => {
+                  // Ignora erros menores
+                }
+              ).catch(err => {
+                // Erro ao iniciar a câmera
+                resultado.className = 'nao-autorizado';
+                resultado.innerHTML = "Erro ao iniciar a câmera: " + err;
+                btn.disabled = false;
+              });
+            } else {
+              // Nenhuma câmera encontrada
+              resultado.className = 'nao-autorizado';
+              resultado.innerHTML = "Nenhuma câmera encontrada.";
+              btn.disabled = false;
+            }
+          })
+          .catch(err => {
+            // Erro ao buscar câmeras
+            resultado.className = 'nao-autorizado';
+            resultado.innerHTML = "Erro ao buscar câmeras: " + err;
+            btn.disabled = false;
+          });
+      });
+
+      function verificarCodigo(codigo) {
+        resultado.className = 'loading';
+        resultado.innerHTML = `Verificando código: <b>${codigo}</b> ...`;
+
+        // Verifica se o código está na lista local
+        if (codigosValidos.includes(codigo)) {
+          resultado.className = 'autorizado';
+          resultado.innerHTML = `✅ Código <b>${codigo}</b> autorizado!`;
+        } else {
+          resultado.className = 'nao-autorizado';
+          resultado.innerHTML = `❌ Código <b>${codigo}</b> não autorizado.`;
+        }
+      }
+    </script>
   </body>
 </html>
